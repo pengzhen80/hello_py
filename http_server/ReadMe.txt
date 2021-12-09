@@ -1,0 +1,1 @@
+request server是開啟一個對外的server，並開啟一個連結本地server的一個client，處理外部的request，並存入數據庫；
