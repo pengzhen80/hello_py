@@ -122,6 +122,18 @@ REPLY_FORM_BODY_END ='''</NO_LGCODE>
 
 
 class TestHttpHandler(BaseHTTPRequestHandler):
+    # def handle(self):
+    #     """Handles a request ignoring dropped connections."""
+    #     rv = None
+    #     try:
+    #         rv = BaseHTTPRequestHandler.handle(self)
+    #     except (socket.error, socket.timeout) as e:
+    #         self.connection_dropped(e)
+    #     except Exception as e:
+    #         print(e)
+    #     if self.server.shutdown_signal:
+    #         self.initiate_shutdown()
+    #     return rv 
     def do_GET(self):
         # First, send a 200 OK response.
         self.send_response(200)
@@ -142,25 +154,13 @@ class TestHttpHandler(BaseHTTPRequestHandler):
         # Read the correct amount of data from the request.
         # data = self.rfile.read(length).decode()
         data = urllib.parse.parse_qs(self.rfile.read(length).decode('utf-8'))
-        # print(data)
-        #write to log
-        # print(data)
         writeToLog(log_name,str(data))
-        # logging.info(data)
-        # print(type(data))
-        # print(data.values())
-        # for key in data.keys():
-        #     print(key,'/n')
                 
         data_multi = my_decode_data(data)
-
-        # myreply_body = ''''''
-        # for data in data_multi:
-        #     myreply_body += REPLY_FORM_BODY_HEAD+data.logistics+REPLY_FORM_BODY_END
-        # myreply = REPLY_FORM_HEAD+myreply_body+REPLY_FORM_TAIL
-        # self.wfile.write(myreply.encode("utf-8"))
-
+        # data_multi = []
+        
         try:
+            # data_multi = my_decode_data(data)
             dataToSend = ""
             dataToSendSize = len(data_multi)        
             # print(dataToSendSize)
@@ -189,8 +189,10 @@ class TestHttpHandler(BaseHTTPRequestHandler):
                 my_client.send(str(dataToSend).encode())
             except Exception as ex:
                 print(ex)
+                writeToLog(log_name,str(ex))
         except Exception as ex:
             print(ex)
+            writeToLog(log_name,str(ex))
 
         self.send_response(200)
         self.send_header("Content-type", "text/html")
@@ -225,6 +227,17 @@ class MyLocalClient:
     def send(self,data):
         self.s.send(data)
 
+    def init_alwaysConenct(self):
+        connected = False  
+        while not connected:  
+            # attempt to reconnect, otherwise sleep for 2 seconds  
+            try:  
+                self.s.connect((self.LOCAL_HOST, self.LOCAL_PORT))  
+                connected = True  
+                print( "re-connection successful" )  
+            except socket.error:  
+                sleep( 1 ) 
+
 PORT = 443
 
 from datetime import date
@@ -232,14 +245,14 @@ import db_mysql_test
 
 if __name__ == '__main__':
     my_client = MyLocalClient()
-    my_client.init()
+    my_client.init_alwaysConenct()
 
     today = date.today()
     log_name = today.strftime("%d-%m-%Y")
 
     db_conn = db_mysql_test.db_mysql_init()
 
-    with socketserver.TCPServer(("192.168.8.2", PORT), TestHttpHandler) as httpd:
+    with socketserver.TCPServer(("211.20.149.130", PORT), TestHttpHandler) as httpd:
         print("serving at port", PORT)
         # if(httpd.verify_request(request=))
         httpd.serve_forever()

@@ -8,7 +8,7 @@ xml_data = data['Data']
 str_xml_data = xml_data[0]
 # xml_file = open("data.xml","w")
 # xml_file.write(str_xml_data)
-# xml_file.close()
+# xml_file.close()..
 import xml.etree.ElementTree as ET
 root = ET.fromstring(str_xml_data)
 print(root.tag,'\n')

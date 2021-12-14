@@ -2,7 +2,7 @@
 import requests
 import ast
 
-my_data = {"name":"pengzhen"}
+my_data = {"Data":""}
 
 f= open("./web_logs/06-11-2021.txt",'r',encoding='UTF-8')
 
@@ -17,6 +17,6 @@ data = data[1:-1]
 res = ast.literal_eval(data)
 
 data_formal_1106 = res
-r = requests.post("http://223.22.240.67:443",data = data_formal_1106)
+r = requests.post("http://223.22.240.67:443",data = my_data)
 print(r.headers)
 print(r.content)

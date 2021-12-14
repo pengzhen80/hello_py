@@ -44,6 +44,7 @@ def db_mysql_createTable(conn):
             conn.commit()
     except Exception as ex:
         print(ex)
+        conn.connect()
 
 def db_mysql_insertdata(conn, name, barcode, phone, date):
     try:
@@ -60,7 +61,20 @@ def db_mysql_insertdata(conn, name, barcode, phone, date):
             conn.commit()
     except Exception as ex:
         print(ex)
-        db_settings.conn().connect()
+        conn.connect()
+        try:
+            with conn.cursor() as cursor:
+            # 新增資料SQL語法
+            # command = cmd_createTable
+            # today = date.today()
+            # today_date = today.strftime("%d-%m-%Y")
+                command = cmd_insertData.format(
+                    name=name, barcode=barcode, phone=phone, date=date)
+                print(command)
+                cursor.execute(command)
+                conn.commit()
+        except Exception as ex:
+                print(ex)
 
 
 def db_mysql_searchdata(conn,date):
@@ -77,7 +91,9 @@ def db_mysql_searchdata(conn,date):
             conn.commit()
     except Exception as ex:
         print(ex)
-        db_settings.conn().connect()    
+        conn.connect()
+       
+
 
 
 # conn = db_mysql_init()
